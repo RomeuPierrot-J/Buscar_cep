@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Busca CEP</title>
+<style>
+    body { font-family: sans-serif; max-width: 400px; margin: 60px auto; padding: 0 16px; }
+    h1 { font-size: 22px; }
+    form { display: flex; gap: 8px; }
+    input { flex: 1; padding: 10px; font-size: 16px; }
+    button { padding: 10px 16px; cursor: pointer; }
+    #resultado { margin-top: 20px; line-height: 1.6; }
+    .erro { color: red; }
+</style>
+</head>
+<body>
+
+<h1>Busca de CEP</h1>
+
+<form id="form">
+    <input type="text" id="cep" placeholder="00000-000" maxlength="9">
+    <button type="submit">Buscar</button>
+</form>
+
+<div id="resultado"></div>
+
+<script>
+    document.getElementById('form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const cep = document.getElementById('cep').value.replace(/\D/g, '');
+    const resultado = document.getElementById('resultado');
+
+    if (cep.length !== 8) {
+        resultado.innerHTML = '<p class="erro">Digite um CEP válido.</p>';
+        return;
+    }
+
+    resultado.innerHTML = 'Buscando...';
+
+    try {
+        const res = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+        const data = await res.json();
+
+        resultado.innerHTML = data.erro
+        ? '<p class="erro">CEP não encontrado.</p>'
+        : `
+            <p><b>Rua:</b> ${data.logradouro}</p>
+            <p><b>Bairro:</b> ${data.bairro}</p>
+            <p><b>Cidade:</b> ${data.localidade} - ${data.uf}</p>
+        `;
+    } catch {
+        resultado.innerHTML = '<p class="erro">Erro ao buscar o CEP.</p>';
+    }
+});
+</script>
+
+</body>
+</html>
